@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Filter = ({filter, setFilter}) => {
+const PersonFilter = ({filter, setFilter}) => {
 
     return (
         <div>
@@ -9,4 +9,4 @@ const Filter = ({filter, setFilter}) => {
     )
 }
 
-export default Filter
+export default PersonFilter
