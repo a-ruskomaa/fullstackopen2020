@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
+import personService from './services/personService'
 import PersonList from './components/PersonList'
 import PersonForm from './components/PersonForm'
 import PersonFilter from './components/PersonFilter'
-import personService from './services/personService'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [filter, setFilter] = useState('')
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [notification, setNotification] = useState(null)
 
   const formData = {
     newName,
@@ -39,13 +41,18 @@ const App = () => {
           id: id
         }
 
+        /*TODO: varmista että muutetaan oikeaa entryä*/
         personService
           .update(id, updatedPerson)
           .then(response => {
             const updatedPersons = persons.map(person => person.id !== id ? person : updatedPerson)
-						setPersons(updatedPersons)
+            setPersons(updatedPersons)
             setNewName('')
             setNewNumber('')
+            showInfo(`${updatedPerson.name}'s number has been updated`)
+          })
+          .catch(error => {
+            showError(`${updatedPerson.name} has already been removed from the server`)
           })
       }
     }
@@ -61,25 +68,42 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          showInfo(`${returnedPerson.name} has been added to the Phonebook`)
         })
     }
   }
 
   const deletePerson = (id, name) => {
     if (window.confirm(`Delete ${name}?`)) {
+      /*TODO: varmista että muutetaan oikeaa entryä*/
       personService
         .remove(id)
         .then(setPersons(persons.filter(p => p.id !== id)))
         .catch(error => {
-          alert(`${name} was already removed from the server`)
+          showError(`${name} has already been removed from the server`)
         })
     }
 
   }
 
+  const showError = (message) => {
+    setNotification({ message: message, type: 'error' })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+
+  const showInfo = (message) => {
+    setNotification({ message: message, type: 'info' })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <h3>PersonFilter</h3>
       <PersonFilter value={filter} setFilter={setFilter} />
       <h3>Add new</h3>
