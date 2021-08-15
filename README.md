@@ -1,4 +1,4 @@
-# fullstackopen2019
+# fullstackopen2020
 Helsingin yliopiston Full Stack -kurssin tehtävien palautukseen käytetty repositorio
 
 Kurssin verkkosivusto:
