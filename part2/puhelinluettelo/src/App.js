@@ -32,16 +32,17 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    if (persons.map(person => person.name).includes(newName)) {
-      if (window.confirm(`${newName} is already added to the phonebook, do you want to update ${newName}'s phone number?`)) {
-        const id = persons.find(p => p.name === newName).id
+    const existingPerson = persons.find(person => person.name === newName);
+
+    if (existingPerson &&
+      window.confirm(`${newName} is already added to the phonebook, do you want to update ${newName}'s phone number?`)) {
+        const id = existingPerson.id
         const updatedPerson = {
           name: newName,
           number: newNumber,
           id: id
         }
 
-        /*TODO: varmista että muutetaan oikeaa entryä*/
         personService
           .update(id, updatedPerson)
           .then(response => {
@@ -52,9 +53,9 @@ const App = () => {
             showInfo(`${updatedPerson.name}'s number has been updated`)
           })
           .catch(error => {
-            showError(`${updatedPerson.name} has already been removed from the server`)
+            console.log(error.response)
+            // showError(error.response.data)
           })
-      }
     }
     else {
       const newPerson = {
@@ -70,17 +71,24 @@ const App = () => {
           setNewNumber('')
           showInfo(`${returnedPerson.name} has been added to the Phonebook`)
         })
+        .catch(error => {
+          const message = error.response.data.errors.join('\n')
+          showError(message)
+        })
     }
   }
 
   const deletePerson = (id, name) => {
     if (window.confirm(`Delete ${name}?`)) {
-      /*TODO: varmista että muutetaan oikeaa entryä*/
       personService
         .remove(id)
-        .then(setPersons(persons.filter(p => p.id !== id)))
+        .then(returnedPerson => {
+          setPersons(persons.filter(p => p.id !== id))
+          showInfo(`${name} has been removed from the Phonebook`)
+        })
         .catch(error => {
-          showError(`${name} has already been removed from the server`)
+          console.log(error.response.data)
+          // showError(error.response.data)
         })
     }
 
